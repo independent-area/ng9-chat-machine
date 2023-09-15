@@ -1,0 +1,104 @@
+<div id="frame">
+	<div id="sidepanel">
+		<div id="profile" [class.expanded]="expanded">
+			<div class="wrap">
+				<img
+          id="profile-img"
+          (click)="expandStatuses = !expandStatuses"
+          [class]="selfUser.status"
+          [src]="selfUser.img"
+          alt=""
+					onerror="this.src='/assets/icons/user.png'"
+        />
+				<p>{{selfUser.name}}</p>
+				<mat-icon class="expand-button" (click)="expanded = !expanded">expand_more</mat-icon>
+				<div id="status-options" [class.active]="expandStatuses">
+					<ul>
+						<li *ngFor="let item of (statuses | keyvalue)" [attr.id]="'status-'+item.value"
+							(click)="selfUser.status = item.value; expandStatuses=false"
+							[class.active]="item.value === selfUser.status" [class]="item.value">
+							<span class="status-circle"></span>
+							<p style="text-transform: capitalize;">{{item.value}}</p>
+						</li>
+					</ul>
+				</div>
+				<div id="expanded">
+					<ng-container *ngFor="let item of (selfUser?.social | json | keyvalue)">
+						<label for="twitter"
+              ><i
+                class="fa fa-fw"
+                [class]="'fa-'+item.key"
+                aria-hidden="true"
+              ></i
+            ></label>
+						<input [name]="item.key" type="text" [value]="item.value" />
+          </ng-container>
+				</div>
+			</div>
+		</div>
+		<div id="search">
+			<label for=""><mat-icon>search</mat-icon></label>
+			<input type="text" placeholder="Search contacts..." />
+    </div>
+		<div id="contacts" [class.expanded]="expanded">
+			<ul>
+				<li class="contact" *ngFor="let user of users" (click)="setUserActive(user)"
+					[class.active]="activeUser.id === user.id">
+					<div class="wrap">
+						<span class="contact-status" [class]="user.status"></span>
+						<img [src]="user.img" alt="" onerror="this.src='/assets/icons/user.png'" />
+						<div class="	">
+							<p class="name">{{user.name}}</p>
+							<p class="preview">
+								{{user.messages[user.messages?.length - 1]?.message || ''}}
+							</p>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div id="bottom-bar">
+			<button id="addcontact">
+				<mat-icon>add</mat-icon>
+      	<span>Add contact</span>
+			</button>
+			<button id="settings" (click)="logout()">
+				<mat-icon>exit_to_app</mat-icon>
+				<span>Logout</span>
+			</button>
+		</div>
+	</div>
+
+	<div *ngIf="activeUser" class="content">
+		<div class="contact-profile">
+			<img [src]="activeUser.img" alt="" onerror="this.src='/assets/icons/user.png'" />
+			<p>{{activeUser.name}}</p>
+			<div class="social-media">
+				<i class="fa fa-facebook" aria-hidden="true"></i>
+				<i class="fa fa-twitter" aria-hidden="true"></i>
+				<i class="fa fa-instagram" aria-hidden="true"></i>
+			</div>
+		</div>
+		<div class="messages" #scrollMe>
+			<ul>
+				<li [class]="msg.sender_id == selfUser.id ? 'replies' : 'sent'" *ngFor="let msg of activeUser?.messages">
+					<img [src]="msg.sender_id == selfUser.id ? activeUser.img : selfUser.img" onerror="this.src='/assets/icons/user.png'" alt="" />
+					<p>{{msg?.message || ''}}</p>
+				</li>
+			</ul>
+		</div>
+		<div class="message-input">
+			<div class="wrap">
+				<input
+					type="text"
+					#msgInput
+					placeholder="Write your message..."
+					(keyup.enter)="addNewMessage(msgInput)"
+				/>
+				<button class="submit" (click)="addNewMessage(msgInput)">
+					<mat-icon>send</mat-icon>
+      	</button>
+			</div>
+		</div>
+	</div>
+</div>
